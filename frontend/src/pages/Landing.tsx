@@ -84,9 +84,9 @@ const quickLinks = [
 ]
 
 const steps = [
-  { step: '01', title: 'Sign in with Google', description: 'Create your account in seconds — no forms, no friction.' },
-  { step: '02', title: 'Fetch Your Report', description: 'We pull your credit data and run it through our AI engine.' },
-  { step: '03', title: 'Understand & Improve', description: 'Get a clear report, flag disputes, and follow your improvement plan.' },
+  { step: '01', title: 'Upload Your Documents', description: 'Upload credit reports, bank statements, or photos of financial documents.' },
+  { step: '02', title: 'AI Analyzes Your Data', description: 'Our AI agents extract data, build your financial profile, and generate insights.' },
+  { step: '03', title: 'Get Personalized Advice', description: 'Chat with specialist agents for debt analysis, budgeting, savings plans, and payoff strategies.' },
 ]
 
 export default function Landing() {
