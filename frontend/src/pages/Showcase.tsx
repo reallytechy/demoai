@@ -34,6 +34,12 @@ const CATEGORIES: Category[] = [
         tryLabel: 'Try Chat',
       },
       {
+        name: 'Multi-Agent Financial Plan',
+        description: 'All 4 specialist agents collaborate on one unified output — each contributes a section (snapshot, debt, budget, payoff, savings) to build a complete personalized financial plan.',
+        tryLink: '/plan',
+        tryLabel: 'View Plan',
+      },
+      {
         name: 'Agent Routing',
         description: 'Orchestrator classifies user intent and dynamically routes to one of 4 specialist agents or answers directly.',
         tryLink: '/chat',
@@ -127,6 +133,12 @@ const CATEGORIES: Category[] = [
         description: 'Written content is converted to spoken audio (MP3 podcast) using Google Text-to-Speech. Reverse of speech-to-text.',
         tryLink: '/admin?mode=write',
         tryLabel: 'Listen to podcast',
+      },
+      {
+        name: 'Structured JSON Output',
+        description: 'Financial Plan agents return strict JSON (not free text). Each section (snapshot, debt, budget, payoff, savings) is parsed and rendered as structured UI.',
+        tryLink: '/plan',
+        tryLabel: 'See structured plan',
       },
       {
         name: 'Tokenization',
@@ -268,7 +280,7 @@ export default function Showcase() {
 
         {/* Tech stack pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Vision', 'Diffusion', 'TTS', 'STT', 'Multimodal', 'Tokenization', 'Prompt Engineering'].map((t) => (
+          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Vision', 'Diffusion', 'TTS', 'STT', 'Multimodal', 'Structured Output', 'Multi-Agent Financial Plan', 'Memory', 'Multi-Agent Pipeline', 'Tokenization', 'Prompt Engineering'].map((t) => (
             <span key={t} className="px-3 py-1 text-xs font-medium rounded-full bg-brand-50 text-brand-700 border border-brand-100">
               {t}
             </span>

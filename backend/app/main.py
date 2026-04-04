@@ -12,7 +12,7 @@ load_dotenv(_BACKEND_ROOT / ".env", override=True)
 
 from fastapi.staticfiles import StaticFiles
 
-from app.routes import blog, chat, documents
+from app.routes import blog, chat, documents, plan
 from app.settings import get_settings
 
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +43,7 @@ app.add_middleware(
 app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(blog.router)
+app.include_router(plan.router)
 
 # Serve generated blog media (images, audio) as static files
 _media_dir = _BACKEND_ROOT / "app" / "data" / "blogs"

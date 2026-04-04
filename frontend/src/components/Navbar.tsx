@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 const NAV_LINKS = [
   { to: '/upload', label: 'Upload' },
+  { to: '/plan', label: 'My Plan' },
   { to: '/chat', label: 'AI Coach' },
   { to: '/admin', label: 'Tips' },
   { to: '/showcase', label: 'Showcase' },
