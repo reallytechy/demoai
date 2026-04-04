@@ -4,10 +4,8 @@ import { signInWithGoogle, signOut } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 const NAV_LINKS = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/chat', label: 'AI Coach' },
   { to: '/upload', label: 'Upload' },
-  { to: '/report/get', label: 'Report' },
+  { to: '/chat', label: 'AI Coach' },
   { to: '/admin', label: 'Tips' },
   { to: '/showcase', label: 'Showcase' },
   { to: '/health', label: 'API Health' },
