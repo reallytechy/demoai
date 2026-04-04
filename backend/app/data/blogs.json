@@ -1,132 +1,20 @@
-{
-  "report_summary": {
-    "score": 548,
-    "score_band": "Poor",
-    "report_date": "2026-04-01",
-    "total_accounts": 3,
-    "active_accounts": 2,
-    "closed_accounts": 1
+[
+  {
+    "id": "b7657014",
+    "topic": "5 simple savings tips for beginners",
+    "title": "Kickstart Your Savings: 5 Easy Tips",
+    "content": "Ready to build your savings but don't know where to start? It's simpler than you think! First, track your spending for a month to see where your money goes.\n\nNext, set a realistic savings goal, even a small one. Automate your savings by setting up a recurring transfer to a savings account. Cut one small expense, like a daily coffee, and save the difference. Finally, look for ways to increase your income, like a side hustle, and put that extra cash directly into savings. These small steps can make a big difference!",
+    "image_url": "/media/blogs/b7657014/image.png",
+    "audio_url": "/media/blogs/b7657014/podcast.mp3",
+    "created_at": "2026-04-04T18:36:17.336466+00:00"
   },
-  "personal_information": {
-    "name": "Rahul Sharma",
-    "dob": "1992-05-14",
-    "pan": "ABCDE1234F",
-    "emails": ["rahul@gmail.com", "rahul123@gmail.com"],
-    "addresses": [
-      {
-        "type": "Residential",
-        "address": "Delhi, India",
-        "status": "Current"
-      },
-      {
-        "type": "Old Address",
-        "address": "Noida, India",
-        "status": "Inactive"
-      }
-    ],
-    "phone_numbers": ["9999999999"],
-    "issues": [
-      "Multiple email IDs found",
-      "Multiple addresses reported"
-    ]
-  },
-  "accounts": [
-    {
-      "account_id": "ACC001",
-      "lender": "HDFC Bank",
-      "type": "Credit Card",
-      "status": "Active",
-      "credit_limit": 100000,
-      "current_balance": 92000,
-      "utilization_percent": 92,
-      "overdue_amount": 12000,
-      "payment_history": ["30", "60", "90", "30", "000"],
-      "remarks": ["High utilization", "Multiple missed payments"]
-    },
-    {
-      "account_id": "ACC002",
-      "lender": "Axis Bank",
-      "type": "Personal Loan",
-      "status": "Active",
-      "loan_amount": 300000,
-      "current_balance": 210000,
-      "overdue_amount": 15000,
-      "payment_history": ["30", "30", "000", "000"],
-      "remarks": ["Recent delinquencies"]
-    },
-    {
-      "account_id": "ACC003",
-      "lender": "Bajaj Finserv",
-      "type": "Consumer Loan",
-      "status": "Written-off",
-      "loan_amount": 50000,
-      "current_balance": 50000,
-      "overdue_amount": 50000,
-      "payment_history": ["90", "120", "150"],
-      "remarks": ["Written-off account", "Severe negative impact"]
-    }
-  ],
-  "delinquencies": [
-    {
-      "account_id": "ACC003",
-      "type": "Written-off",
-      "amount": 50000,
-      "impact": "High"
-    },
-    {
-      "account_id": "ACC001",
-      "type": "Late Payment",
-      "days_past_due": 90,
-      "impact": "Medium"
-    }
-  ],
-  "enquiries": [
-    {
-      "lender": "HDFC Bank",
-      "date": "2025-12-01",
-      "type": "Credit Card",
-      "amount": 100000
-    },
-    {
-      "lender": "ICICI Bank",
-      "date": "2025-11-20",
-      "type": "Personal Loan",
-      "amount": 200000
-    },
-    {
-      "lender": "Axis Bank",
-      "date": "2025-11-10",
-      "type": "Loan",
-      "amount": 150000
-    }
-  ],
-  "disputes": [
-    {
-      "account_id": "ACC002",
-      "field": "Overdue Amount",
-      "status": "Under Review",
-      "remark": "User claims incorrect overdue reporting"
-    }
-  ],
-  "credit_utilization": {
-    "total_limit": 100000,
-    "used_limit": 92000,
-    "utilization_percent": 92,
-    "status": "High"
-  },
-  "payment_summary": {
-    "on_time_payments": 6,
-    "late_payments": 4,
-    "severe_delinquencies": 2
-  },
-  "risk_flags": [
-    "High credit utilization",
-    "Multiple recent enquiries",
-    "Written-off account present",
-    "Late payments in last 6 months"
-  ],
-  "positive_factors": [
-    "Active credit history",
-    "Some recent on-time payments"
-  ]
-}
+  {
+    "id": "d6bda083",
+    "topic": "How to improve your credit score quickly",
+    "title": "Boost Your Credit Score Fast: Simple Steps That Work",
+    "content": "Want to see your credit score jump? It's totally doable! Start by grabbing a copy of your credit report and disputing any errors you find. Even small mistakes can drag your score down, so get those fixed ASAP!\n\nNext, focus on paying down those credit card balances. High credit utilization (the amount of credit you're using compared to your limit) hurts your score. Aim to keep your balances below 30% of your limit, or even better, below 10%.\n\nFinally, make sure you're paying all your bills on time, every time. Payment history is a huge factor in your credit score. Set up automatic payments so you never miss a due date. Consistency is key to building good credit!",
+    "image_url": "/media/blogs/d6bda083/image.png",
+    "audio_url": "/media/blogs/d6bda083/podcast.mp3",
+    "created_at": "2026-04-04T18:24:45.250729+00:00"
+  }
+]

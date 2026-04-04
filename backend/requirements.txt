@@ -24,3 +24,6 @@ langsmith>=0.2.0
 
 # --- SSE ---
 sse-starlette>=2.0.0
+
+# --- Blog Feature ---
+gTTS>=2.5.0

@@ -5,6 +5,8 @@ import Chat from './pages/Chat'
 import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import Health from './pages/Health'
+import Admin from './pages/Admin'
+import BlogDetail from './pages/BlogDetail'
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/health" element={<Health />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/blog/:id" element={<BlogDetail />} />
       </Routes>
     </BrowserRouter>
   )

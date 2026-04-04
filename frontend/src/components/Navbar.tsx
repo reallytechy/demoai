@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { to: '/chat', label: 'AI Coach' },
   { to: '/upload', label: 'Upload' },
   { to: '/report/get', label: 'Report' },
+  { to: '/admin', label: 'Tips' },
   { to: '/health', label: 'API Health' },
 ]
 
@@ -60,8 +61,23 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right: Auth + hamburger */}
+        {/* Right: Admin (write) + Auth + hamburger */}
         <div className="flex items-center gap-3">
+          {/* Admin button — edit icon, goes to write mode */}
+          <Link
+            to="/admin?mode=write"
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              location.pathname.startsWith('/admin') && location.search.includes('mode=write')
+                ? 'bg-amber-50 text-amber-700'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Admin
+          </Link>
+
           {!loading && (
             <>
               {user ? (
