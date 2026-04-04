@@ -140,20 +140,26 @@ const CATEGORIES: Category[] = [
     color: 'amber',
     features: [
       {
+        name: 'Image-to-Text (Vision)',
+        description: 'Upload a photo of a bank statement, receipt, or credit report. Vision model (Gemini Flash) extracts all text and data, which feeds into RAG for chat.',
+        tryLink: '/upload',
+        tryLabel: 'Upload an image',
+      },
+      {
         name: 'Speech-to-Text (STT)',
         description: 'Browser Web Speech API captures voice input and converts to text. Works in Chrome/Edge; text fallback for other browsers.',
         tryLink: '/admin?mode=write',
         tryLabel: 'Speak a topic',
       },
       {
-        name: 'Image Output',
-        description: 'AI-generated featured images for each tip — produced by diffusion models, served as static PNG files.',
-        tryLink: '/admin',
-        tryLabel: 'View Tips',
+        name: 'Text-to-Image (Diffusion)',
+        description: 'AI generates images from text prompts via diffusion model. LLM creates description, Pollinations.ai renders it.',
+        tryLink: '/admin?mode=write',
+        tryLabel: 'Generate image',
       },
       {
-        name: 'Audio Output',
-        description: 'AI-generated podcast audio for each tip — TTS converts text to MP3, playable in-browser with audio controls.',
+        name: 'Text-to-Speech (Audio)',
+        description: 'Written content converted to spoken podcast audio (MP3) via Google TTS. Playable in-browser.',
         tryLink: '/admin',
         tryLabel: 'Play podcast',
       },
@@ -262,7 +268,7 @@ export default function Showcase() {
 
         {/* Tech stack pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Diffusion', 'TTS', 'STT', 'Tokenization', 'Prompt Engineering'].map((t) => (
+          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Vision', 'Diffusion', 'TTS', 'STT', 'Multimodal', 'Tokenization', 'Prompt Engineering'].map((t) => (
             <span key={t} className="px-3 py-1 text-xs font-medium rounded-full bg-brand-50 text-brand-700 border border-brand-100">
               {t}
             </span>

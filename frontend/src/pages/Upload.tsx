@@ -15,6 +15,10 @@ const FILE_TYPE_ICONS: Record<string, string> = {
   csv: 'CSV',
   json: 'JSON',
   xlsx: 'XLS',
+  png: 'IMG',
+  jpg: 'IMG',
+  jpeg: 'IMG',
+  webp: 'IMG',
 }
 
 const DOC_TYPE_LABELS: Record<string, { label: string; color: string }> = {
@@ -165,11 +169,11 @@ export default function Upload() {
               <p className="text-slate-600 mb-2">
                 {uploading ? 'Processing...' : 'Drag & drop files here, or click to browse'}
               </p>
-              <p className="text-xs text-slate-400 mb-4">Supports PDF, CSV, JSON, XLSX (max 10MB)</p>
+              <p className="text-xs text-slate-400 mb-4">Supports PDF, CSV, JSON, XLSX, PNG, JPG (max 10MB)</p>
               <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 cursor-pointer transition-colors text-sm">
                 <input
                   type="file"
-                  accept=".pdf,.csv,.json,.xlsx"
+                  accept=".pdf,.csv,.json,.xlsx,.png,.jpg,.jpeg,.webp"
                   multiple
                   onChange={(e) => handleUpload(e.target.files)}
                   className="hidden"

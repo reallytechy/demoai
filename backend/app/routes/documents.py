@@ -133,7 +133,8 @@ async def upload_document(file: UploadFile):
     )
 
     try:
-        docs = load_from_bytes(content, file.filename)
+        import asyncio
+        docs = await asyncio.to_thread(load_from_bytes, content, file.filename)
         chunks_added = add_documents(_DEMO_USER, docs)
         doc_info.status = "processed"
         doc_info.chunks = chunks_added

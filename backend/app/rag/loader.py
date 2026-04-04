@@ -127,12 +127,84 @@ def load_xlsx(file_path: str) -> list[Document]:
     return docs
 
 
+def load_image(file_path: str) -> list[Document]:
+    """Extract text from an image using a vision LLM (Gemini Flash via OpenRouter)."""
+    import base64
+
+    from langchain_core.messages import HumanMessage
+    from langchain_openai import ChatOpenAI
+
+    from app.settings import get_settings
+
+    settings = get_settings()
+
+    # Read and base64-encode the image
+    with open(file_path, "rb") as f:
+        image_data = base64.standard_b64encode(f.read()).decode("utf-8")
+
+    ext = Path(file_path).suffix.lstrip(".").lower()
+    mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}.get(ext, "image/png")
+
+    # Use vision model via OpenRouter (Gemini Flash supports vision)
+    if settings.llm_provider == "openrouter" and settings.openrouter_api_key:
+        llm = ChatOpenAI(
+            model=settings.openrouter_model,
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            temperature=0.1,
+            timeout=60,
+            default_headers={
+                "HTTP-Referer": "https://demoai-one.vercel.app",
+                "X-Title": "DemoAI Vision",
+            },
+        )
+    else:
+        llm = ChatOpenAI(
+            model=settings.openai_model,
+            api_key=settings.openai_api_key,
+            temperature=0.1,
+            timeout=60,
+        )
+
+    message = HumanMessage(
+        content=[
+            {"type": "text", "text": (
+                "Extract ALL text and data from this financial document image. "
+                "Include every number, name, date, account, transaction, and detail you can see. "
+                "Format as plain text with key: value pairs where possible. "
+                "If it's a table, reproduce the rows. Be thorough — extract everything."
+            )},
+            {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{image_data}"}},
+        ]
+    )
+
+    response = llm.invoke([message])
+    text = response.content if isinstance(response.content, str) else str(response.content)
+
+    docs: list[Document] = []
+    if text.strip():
+        # Chunk into ~500 char segments
+        chunk_size = 500
+        for i in range(0, len(text), chunk_size):
+            chunk = text[i:i + chunk_size]
+            docs.append(Document(
+                page_content=chunk.strip(),
+                metadata={"source": file_path, "type": "image", "chunk": i // chunk_size},
+            ))
+
+    return docs
+
+
 # Registry — maps file extension to loader
 LOADERS = {
     "pdf": load_pdf,
     "csv": load_csv,
     "json": load_json,
     "xlsx": load_xlsx,
+    "png": load_image,
+    "jpg": load_image,
+    "jpeg": load_image,
+    "webp": load_image,
 }
 
 
