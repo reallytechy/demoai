@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 
+interface ConfigData {
+  llm_provider: string
+  llm_model: string
+  openrouter_connected: boolean
+  openai_connected: boolean
+  langsmith_enabled: boolean
+  langsmith_project: string | null
+  langsmith_key_set: boolean
+  supabase_connected: boolean
+}
+
 interface HealthData {
   status: string
   version: string
   agents: string[]
+  config?: ConfigData
 }
 
 interface EndpointResult {
@@ -32,6 +44,10 @@ function apiBaseUrl(): string {
   return ''
 }
 
+function StatusDot({ ok }: { ok: boolean }) {
+  return <span className={`inline-block w-2.5 h-2.5 rounded-full ${ok ? 'bg-green-500' : 'bg-slate-300'}`} />
+}
+
 export default function Health() {
   const [health, setHealth] = useState<HealthData | null>(null)
   const [results, setResults] = useState<EndpointResult[]>(
@@ -41,13 +57,11 @@ export default function Health() {
   useEffect(() => {
     const base = apiBaseUrl()
 
-    // Fetch health
     fetch(`${base}/health`)
       .then((r) => r.json())
       .then((d) => setHealth(d))
       .catch(() => {})
 
-    // Test all endpoints
     ENDPOINTS.forEach((ep, i) => {
       const start = Date.now()
       fetch(`${base}${ep.path}`)
@@ -72,13 +86,14 @@ export default function Health() {
   const passed = results.filter((r) => r.status === 'ok').length
   const failed = results.filter((r) => r.status === 'error').length
   const loading = results.filter((r) => r.status === 'loading').length
+  const config = health?.config
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="pt-20 pb-12 px-4 max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">API Health Check</h1>
-        <p className="text-slate-500 mb-6">Backend status and endpoint verification</p>
+        <p className="text-slate-500 mb-6">Backend status, integrations, and endpoint verification</p>
 
         {/* Status banner */}
         {health ? (
@@ -109,8 +124,94 @@ export default function Health() {
           </div>
         )}
 
-        {/* Summary */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        {/* Integrations / Config */}
+        {config && (
+          <section className="mb-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">Integrations</h2>
+            <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100">
+              <div className="px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StatusDot ok={config.openrouter_connected || config.openai_connected} />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">LLM Provider</div>
+                    <div className="text-xs text-slate-500">Powers all AI agents</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-slate-700">{config.llm_provider}</div>
+                  <div className="text-xs text-slate-400 font-mono">{config.llm_model}</div>
+                </div>
+              </div>
+
+              <div className="px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StatusDot ok={config.openrouter_connected} />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">OpenRouter</div>
+                    <div className="text-xs text-slate-500">Cheap multi-model gateway</div>
+                  </div>
+                </div>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config.openrouter_connected ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {config.openrouter_connected ? 'Connected' : 'Not configured'}
+                </span>
+              </div>
+
+              <div className="px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StatusDot ok={config.openai_connected} />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">OpenAI</div>
+                    <div className="text-xs text-slate-500">Direct API (optional)</div>
+                  </div>
+                </div>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config.openai_connected ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {config.openai_connected ? 'Connected' : 'Not configured'}
+                </span>
+              </div>
+
+              <div className="px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StatusDot ok={config.langsmith_enabled} />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">LangSmith</div>
+                    <div className="text-xs text-slate-500">Tracing & observability</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config.langsmith_enabled ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {config.langsmith_enabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                  {config.langsmith_enabled && config.langsmith_project && (
+                    <div className="text-xs text-slate-400 mt-0.5">Project: {config.langsmith_project}</div>
+                  )}
+                  {!config.langsmith_enabled && config.langsmith_key_set && (
+                    <div className="text-xs text-slate-400 mt-0.5">Key set, tracing off</div>
+                  )}
+                  {!config.langsmith_key_set && (
+                    <div className="text-xs text-slate-400 mt-0.5">No API key</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <StatusDot ok={config.supabase_connected} />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">Supabase</div>
+                    <div className="text-xs text-slate-500">Auth & database</div>
+                  </div>
+                </div>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config.supabase_connected ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {config.supabase_connected ? 'Connected' : 'Not configured'}
+                </span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Summary counters */}
+        <h2 className="text-lg font-semibold text-slate-900 mb-3">Endpoints</h2>
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
             <div className="text-2xl font-bold text-green-600">{passed}</div>
             <div className="text-xs text-slate-500">Passed</div>
@@ -125,7 +226,7 @@ export default function Health() {
           </div>
         </div>
 
-        {/* Endpoint results */}
+        {/* Endpoint results table */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-5 py-3 border-b border-slate-100 bg-slate-50">
             <div className="grid grid-cols-12 text-xs font-medium text-slate-500 uppercase tracking-wide">
@@ -152,6 +253,24 @@ export default function Health() {
             </div>
           ))}
         </div>
+
+        {/* LangSmith setup help */}
+        {config && !config.langsmith_enabled && (
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-5">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">Enable LangSmith Tracing</h3>
+            <p className="text-sm text-blue-700 mb-3">
+              LangSmith traces every agent call, tool execution, and LLM request. Set these in <code className="bg-blue-100 px-1 py-0.5 rounded text-xs">backend/.env</code>:
+            </p>
+            <pre className="bg-blue-900 text-blue-100 rounded-lg p-3 text-xs overflow-x-auto">
+{`LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=lsv2_pt_your_key_here
+LANGCHAIN_PROJECT=demoai`}
+            </pre>
+            <p className="text-xs text-blue-600 mt-2">
+              Get your API key at smith.langchain.com &rarr; Settings &rarr; API Keys. Then restart the backend.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

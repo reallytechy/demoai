@@ -1,12 +1,26 @@
 import logging
+import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Load .env into os.environ BEFORE any LangChain import.
+# LangChain reads LANGCHAIN_* vars directly from os.environ, not from Pydantic.
+from app.settings import _BACKEND_ROOT
+load_dotenv(_BACKEND_ROOT / ".env", override=True)
 
 from app.routes import chat, dashboard, documents, reports
 from app.settings import get_settings
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Log LangSmith status at startup
+if os.environ.get("LANGCHAIN_TRACING_V2", "").lower() == "true":
+    logger.info("LangSmith tracing ENABLED — project: %s", os.environ.get("LANGCHAIN_PROJECT", "default"))
+else:
+    logger.info("LangSmith tracing disabled")
 
 app = FastAPI(
     title="DemoAI Financial Coach API",
@@ -32,4 +46,19 @@ app.include_router(dashboard.router)
 
 @app.get("/health")
 async def health_check() -> dict:
-    return {"status": "ok", "version": "0.2.0", "agents": ["orchestrator", "debt_analyzer", "savings_strategist", "budget_advisor", "payoff_optimizer"]}
+    settings = get_settings()
+    return {
+        "status": "ok",
+        "version": "0.2.0",
+        "agents": ["orchestrator", "debt_analyzer", "savings_strategist", "budget_advisor", "payoff_optimizer"],
+        "config": {
+            "llm_provider": settings.llm_provider,
+            "llm_model": settings.openrouter_model if settings.llm_provider == "openrouter" else settings.openai_model,
+            "openrouter_connected": bool(settings.openrouter_api_key and settings.openrouter_api_key != "sk-or-REPLACE_ME"),
+            "openai_connected": bool(settings.openai_api_key and settings.openai_api_key != "sk-REPLACE_ME"),
+            "langsmith_enabled": settings.langchain_tracing_v2,
+            "langsmith_project": settings.langchain_project if settings.langchain_tracing_v2 else None,
+            "langsmith_key_set": bool(settings.langchain_api_key and settings.langchain_api_key != "lsv2_REPLACE_ME"),
+            "supabase_connected": bool(settings.supabase_url and "your-project" not in settings.supabase_url),
+        },
+    }
