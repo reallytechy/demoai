@@ -7,6 +7,7 @@ import Upload from './pages/Upload'
 import Health from './pages/Health'
 import Admin from './pages/Admin'
 import BlogDetail from './pages/BlogDetail'
+import Showcase from './pages/Showcase'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/health" element={<Health />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/blog/:id" element={<BlogDetail />} />
+        <Route path="/showcase" element={<Showcase />} />
       </Routes>
     </BrowserRouter>
   )

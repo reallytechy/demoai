@@ -88,16 +88,29 @@ def _build_context_string(state: FinancialAgentState) -> str:
 
 
 def load_context_node(state: FinancialAgentState) -> dict[str, Any]:
-    """Load user financial context (from sample data for now)."""
-    # In production, this queries Supabase for the user's profile + debts.
-    # For demo, we use the sample credit report as context.
+    """Load user financial context + RAG retrieval from uploaded documents."""
     from app.agents._sample_data import get_sample_financial_context
+    from app.rag.vectorstore import search
 
     ctx = get_sample_financial_context()
+
+    # RAG: retrieve relevant chunks from uploaded documents
+    retrieved_context = ""
+    user_id = state.get("user_id", "demo-user")
+    messages = state.get("messages", [])
+    if messages:
+        last_message = messages[-1].content if hasattr(messages[-1], "content") else str(messages[-1])
+        docs = search(user_id, last_message, k=5)
+        if docs:
+            retrieved_context = "\n\n".join(
+                f"[Document chunk]: {doc.page_content}" for doc in docs
+            )
+            logger.info("RAG: retrieved %d chunks for query", len(docs))
+
     return {
         "financial_profile": ctx["profile"],
         "debt_records": ctx["debts"],
-        "retrieved_context": "",
+        "retrieved_context": retrieved_context,
     }
 
 

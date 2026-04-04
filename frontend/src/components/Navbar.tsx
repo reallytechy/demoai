@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/upload', label: 'Upload' },
   { to: '/report/get', label: 'Report' },
   { to: '/admin', label: 'Tips' },
+  { to: '/showcase', label: 'Showcase' },
   { to: '/health', label: 'API Health' },
 ]
 
