@@ -42,7 +42,22 @@ AGENT_DISPLAY_NAMES = {
 
 
 def _get_llm() -> ChatOpenAI:
+    """Create LLM instance based on provider config (openrouter or openai)."""
     settings = get_settings()
+
+    if settings.llm_provider == "openrouter" and settings.openrouter_api_key:
+        return ChatOpenAI(
+            model=settings.openrouter_model,
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            temperature=settings.agent_temperature,
+            default_headers={
+                "HTTP-Referer": "https://demoai-one.vercel.app",
+                "X-Title": "DemoAI Financial Coach",
+            },
+        )
+
+    # Fallback to direct OpenAI
     return ChatOpenAI(
         model=settings.openai_model,
         api_key=settings.openai_api_key,

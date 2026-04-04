@@ -34,13 +34,18 @@ class Settings(BaseSettings):
     supabase_anon_key: str = Field(default="")
     supabase_service_role_key: str = Field(default="")
 
-    # --- LLM ---
-    llm_provider: str = Field(default="openai")
+    # --- LLM Provider ---
+    llm_provider: str = Field(default="openrouter")  # openrouter | openai
+
+    # --- OpenRouter (default, cheap models) ---
+    openrouter_api_key: str = Field(default="")
+    openrouter_model: str = Field(default="google/gemini-2.0-flash-001")
+    openrouter_base_url: str = Field(default="https://openrouter.ai/api/v1")
+
+    # --- OpenAI (optional, direct) ---
     openai_api_key: str = Field(default="")
     openai_model: str = Field(default="gpt-4o")
     openai_embedding_model: str = Field(default="text-embedding-3-small")
-    anthropic_api_key: str = Field(default="")
-    anthropic_model: str = Field(default="claude-sonnet-4-20250514")
 
     # --- LangSmith ---
     langchain_tracing_v2: bool = Field(default=False)
