@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: Number(env.VITE_DEV_PORT) || 5173,
       proxy: { ...apiProxy },
+      allowedHosts: env.VITE_ALLOWED_HOSTS
+        ? env.VITE_ALLOWED_HOSTS.split(',').map((h: string) => h.trim())
+        : [],
     },
     preview: {
       proxy: { ...apiProxy },
