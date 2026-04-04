@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { signInWithGoogle, signOut } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
 
 const NAV_LINKS = [
   { to: '/upload', label: 'Upload' },
@@ -12,21 +10,8 @@ const NAV_LINKS = [
 ]
 
 export default function Navbar() {
-  const { user, loading } = useAuth()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const handleAuth = async () => {
-    try {
-      if (user) {
-        await signOut()
-      } else {
-        await signInWithGoogle()
-      }
-    } catch (err) {
-      console.error('Auth error:', err)
-    }
-  }
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
@@ -60,9 +45,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right: Admin (write) + Auth + hamburger */}
+        {/* Right: Admin + hamburger */}
         <div className="flex items-center gap-3">
-          {/* Admin button — edit icon, goes to write mode */}
           <Link
             to="/admin?mode=write"
             className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
@@ -77,32 +61,7 @@ export default function Navbar() {
             Admin
           </Link>
 
-          {!loading && (
-            <>
-              {user ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-600 hidden sm:block truncate max-w-[140px]">
-                    {user.email}
-                  </span>
-                  <button
-                    onClick={handleAuth}
-                    className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleAuth}
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors"
-                >
-                  Sign in
-                </button>
-              )}
-            </>
-          )}
-
-          {/* Hamburger button — always visible */}
+          {/* Hamburger button */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
@@ -139,14 +98,6 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            {!loading && !user && (
-              <button
-                onClick={() => { handleAuth(); setMenuOpen(false) }}
-                className="w-full mt-2 px-4 py-2.5 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors text-center"
-              >
-                Sign in with Google
-              </button>
-            )}
           </div>
         </div>
       )}
