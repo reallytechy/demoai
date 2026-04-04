@@ -1,6 +1,7 @@
 interface ScoreGaugeProps {
   score: number
   band: string
+  size?: 'sm' | 'md'
 }
 
 const SCORE_MIN = 300
@@ -18,14 +19,15 @@ function getBandConfig(band: string) {
   return bandConfig[band] ?? { color: 'text-slate-600', bg: 'bg-slate-50', bar: 'bg-slate-400' }
 }
 
-export default function ScoreGauge({ score, band }: ScoreGaugeProps) {
+export default function ScoreGauge({ score, band, size = 'md' }: ScoreGaugeProps) {
   const percent = ((score - SCORE_MIN) / (SCORE_MAX - SCORE_MIN)) * 100
   const cfg = getBandConfig(band)
+  const isSmall = size === 'sm'
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className={`w-36 h-36 rounded-full ${cfg.bg} flex flex-col items-center justify-center border-4 ${cfg.bar.replace('bg-', 'border-')}`}>
-        <span className={`text-4xl font-black ${cfg.color}`}>{score}</span>
+      <div className={`${isSmall ? 'w-24 h-24' : 'w-36 h-36'} rounded-full ${cfg.bg} flex flex-col items-center justify-center border-4 ${cfg.bar.replace('bg-', 'border-')}`}>
+        <span className={`${isSmall ? 'text-2xl' : 'text-4xl'} font-black ${cfg.color}`}>{score}</span>
         <span className="text-xs text-slate-500 mt-1">out of {SCORE_MAX}</span>
       </div>
       <div className="w-full max-w-xs">

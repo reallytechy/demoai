@@ -34,6 +34,69 @@ const features = [
   },
 ]
 
+const quickLinks = [
+  {
+    to: '/dashboard',
+    title: 'Dashboard',
+    subtitle: 'Score, debt, budget',
+    bg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+  },
+  {
+    to: '/chat',
+    title: 'AI Coach',
+    subtitle: 'Chat with agents',
+    bg: 'bg-green-50',
+    iconColor: 'text-green-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      </svg>
+    ),
+  },
+  {
+    to: '/upload',
+    title: 'Upload Docs',
+    subtitle: 'PDF, CSV, JSON',
+    bg: 'bg-purple-50',
+    iconColor: 'text-purple-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      </svg>
+    ),
+  },
+  {
+    to: '/report/get',
+    title: 'Credit Report',
+    subtitle: 'Full report view',
+    bg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
+  {
+    to: '/health',
+    title: 'API Health',
+    subtitle: 'Backend status',
+    bg: 'bg-red-50',
+    iconColor: 'text-red-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+  },
+]
+
 const steps = [
   { step: '01', title: 'Sign in with Google', description: 'Create your account in seconds — no forms, no friction.' },
   { step: '02', title: 'Fetch Your Report', description: 'We pull your credit data and run it through our AI engine.' },
@@ -110,6 +173,31 @@ export default function Landing() {
           </div>
 
           <CreditImprovementIllustration />
+        </div>
+      </section>
+
+      {/* Quick Menu */}
+      <section className="py-12 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">Explore Features</h2>
+          <p className="text-slate-500 text-center mb-8">Jump into any feature to see it in action</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="group flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100/50 transition-all duration-200"
+              >
+                <div className={`w-12 h-12 ${link.bg} ${link.iconColor} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  {link.icon}
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-semibold text-slate-900">{link.title}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{link.subtitle}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
