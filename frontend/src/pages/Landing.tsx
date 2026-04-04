@@ -58,6 +58,18 @@ const quickLinks = [
     ),
   },
   {
+    to: '/admin',
+    title: 'Tips',
+    subtitle: 'AI-generated tips',
+    bg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
+  },
+  {
     to: '/showcase',
     title: 'AI Showcase',
     subtitle: 'All AI features',
@@ -124,12 +136,12 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">Explore Features</h2>
           <p className="text-slate-500 text-center mb-8">Jump into any feature to see it in action</p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {quickLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="group flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100/50 transition-all duration-200"
+                className="group flex flex-col items-center gap-3 p-5 w-40 bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100/50 transition-all duration-200"
               >
                 <div className={`w-12 h-12 ${link.bg} ${link.iconColor} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
                   {link.icon}
