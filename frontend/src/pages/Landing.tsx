@@ -84,7 +84,7 @@ const quickLinks = [
 ]
 
 const steps = [
-  { step: '01', title: 'Upload Your Documents', description: 'Upload credit reports, bank statements, or photos of financial documents.' },
+  { step: '01', title: 'Upload Your Documents', description: 'Upload credit reports, bank statements, salary slips, or photos of financial documents.' },
   { step: '02', title: 'AI Analyzes Your Data', description: 'Our AI agents extract data, build your financial profile, and generate insights.' },
   { step: '03', title: 'Get Personalized Advice', description: 'Chat with specialist agents for debt analysis, budgeting, savings plans, and payoff strategies.' },
 ]

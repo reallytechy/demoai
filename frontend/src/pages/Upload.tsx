@@ -151,7 +151,7 @@ export default function Upload() {
         {tab === 'upload' && (
           <>
             <p className="text-slate-500 mb-6">
-              Upload your financial documents (credit reports, bank statements, etc.) to give the AI coach more context.
+              Upload your financial documents (credit reports, bank statements, salary slips, etc.) to give the AI coach more context.
             </p>
 
             {/* Drop zone */}
