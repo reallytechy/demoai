@@ -111,9 +111,9 @@ export default function Chat() {
                   <button
                     key={q.text}
                     onClick={() => handleSend(q.text)}
-                    className="group relative text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm text-slate-700 transition-colors"
+                    className="relative text-left p-3 pt-5 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm text-slate-700 transition-colors"
                   >
-                    <span className={`absolute -top-2.5 right-3 text-xs font-medium px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${AGENT_COLORS[q.agentKey] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`absolute -top-2.5 right-3 text-xs font-medium px-2 py-0.5 rounded-full ${AGENT_COLORS[q.agentKey] || 'bg-gray-100 text-gray-700'}`}>
                       {q.agent}
                     </span>
                     {q.text}
