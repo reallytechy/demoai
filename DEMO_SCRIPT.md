@@ -9,7 +9,7 @@
 
 1. Backend running: `cd backend && source venv/bin/activate && uvicorn app.main:app --port 8001 --reload`
 2. Frontend running: `cd frontend && npm run dev`
-3. Open browser to http://localhost:5173 (or deployed URL)
+3. Open browser to https://outskill.tulsi-vatika.com/plan (or deployed URL)
 4. Clear any previous uploads (fresh state is best)
 
 ---
