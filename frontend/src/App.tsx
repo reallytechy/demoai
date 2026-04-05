@@ -7,6 +7,7 @@ import Admin from './pages/Admin'
 import BlogDetail from './pages/BlogDetail'
 import Showcase from './pages/Showcase'
 import Plan from './pages/Plan'
+import Dashboard from './pages/Dashboard'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/admin/blog/:id" element={<BlogDetail />} />
         <Route path="/showcase" element={<Showcase />} />
         <Route path="/plan" element={<Plan />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   )
