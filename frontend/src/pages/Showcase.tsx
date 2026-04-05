@@ -222,6 +222,23 @@ const CATEGORIES: Category[] = [
     ],
   },
   {
+    title: 'Integrations & Automation',
+    icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+    color: 'orange',
+    features: [
+      {
+        name: 'n8n',
+        description: 'Send your generated financial plan to any email via an n8n workflow webhook. Frontend posts plan content and email address directly to the configured n8n endpoint.',
+        tryLink: '/plan',
+        tryLabel: 'Send Plan',
+      },
+      {
+        name: 'Configurable Webhook URL',
+        description: 'n8n integration is opt-in — set VITE_N8N_WEBHOOK_URL in your environment to enable the "Send via Email" button on the Plan page. No backend changes needed.',
+      },
+    ],
+  },
+  {
     title: 'Data & Session Management',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
     color: 'teal',
@@ -257,6 +274,7 @@ const COLOR_MAP: Record<string, { bg: string; border: string; icon: string; badg
   slate: { bg: 'bg-slate-50', border: 'border-slate-200', icon: 'text-slate-600 bg-slate-100', badge: 'bg-slate-100 text-slate-700' },
   indigo: { bg: 'bg-indigo-50', border: 'border-indigo-200', icon: 'text-indigo-600 bg-indigo-100', badge: 'bg-indigo-100 text-indigo-700' },
   teal: { bg: 'bg-teal-50', border: 'border-teal-200', icon: 'text-teal-600 bg-teal-100', badge: 'bg-teal-100 text-teal-700' },
+  orange: { bg: 'bg-orange-50', border: 'border-orange-200', icon: 'text-orange-600 bg-orange-100', badge: 'bg-orange-100 text-orange-700' },
 }
 
 export default function Showcase() {
@@ -280,7 +298,7 @@ export default function Showcase() {
 
         {/* Tech stack pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Vision', 'Diffusion', 'TTS', 'STT', 'Multimodal', 'Structured Output', 'Multi-Agent Financial Plan', 'Memory', 'Multi-Agent Pipeline', 'Tokenization', 'Prompt Engineering'].map((t) => (
+          {['LangGraph', 'LangChain', 'LangSmith', 'OpenRouter', 'RAG', 'Embeddings', 'Tool Use', 'Vision', 'Diffusion', 'TTS', 'STT', 'Multimodal', 'Structured Output', 'Multi-Agent Financial Plan', 'Memory', 'Multi-Agent Pipeline', 'Tokenization', 'Prompt Engineering', 'n8n Webhook'].map((t) => (
             <span key={t} className="px-3 py-1 text-xs font-medium rounded-full bg-brand-50 text-brand-700 border border-brand-100">
               {t}
             </span>
