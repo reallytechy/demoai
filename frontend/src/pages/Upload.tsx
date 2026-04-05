@@ -155,6 +155,39 @@ export default function Upload() {
               Upload your financial documents (credit reports, bank statements, salary slips, etc.) to give the AI coach more context.
             </p>
 
+            {/* Sample files for demo */}
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+              <div className="text-sm font-medium text-blue-900 mb-2">Try with sample files</div>
+              <p className="text-xs text-blue-600 mb-3">Download these demo files and upload them to test the AI features:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: 'Salary Slip (PNG)', file: 'salary.png' },
+                  { name: 'Credit Report (PDF)', file: 'cibil.pdf' },
+                  { name: 'Bank Statement (CSV)', file: 'bankstatement.csv' },
+                ].map((s) => (
+                  <button
+                    key={s.file}
+                    onClick={async () => {
+                      const url = `${import.meta.env.VITE_BACKEND_URL || ''}/samples/${s.file}`
+                      const res = await fetch(url)
+                      const blob = await res.blob()
+                      const a = document.createElement('a')
+                      a.href = URL.createObjectURL(blob)
+                      a.download = s.file
+                      a.click()
+                      URL.revokeObjectURL(a.href)
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Drop zone */}
             <div
               onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}

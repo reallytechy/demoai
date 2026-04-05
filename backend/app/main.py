@@ -50,6 +50,11 @@ _media_dir = _BACKEND_ROOT / "app" / "data" / "blogs"
 _media_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/media/blogs", StaticFiles(directory=str(_media_dir)), name="blog-media")
 
+# Serve sample files for demo download
+_samples_dir = _BACKEND_ROOT / "app" / "data" / "samples"
+if _samples_dir.exists():
+    app.mount("/samples", StaticFiles(directory=str(_samples_dir)), name="samples")
+
 
 @app.get("/health")
 async def health_check() -> dict:
