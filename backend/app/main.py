@@ -25,7 +25,7 @@ else:
     logger.info("LangSmith tracing disabled")
 
 app = FastAPI(
-    title="DemoAI Financial Coach API",
+    title="WealthifyAI Financial Coach API",
     description="Multi-agent AI financial advisor with RAG",
     version="0.2.0",
 )
