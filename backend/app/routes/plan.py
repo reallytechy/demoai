@@ -3,7 +3,7 @@
 import asyncio
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from app.services.financial_plan import generate_plan, get_plan
 
@@ -12,11 +12,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/plan", tags=["plan"])
 
 
+def _get_user_id(request: Request) -> str:
+    return request.headers.get("x-user-id", "demo-user")
+
+
 @router.post("/generate")
-async def generate():
+async def generate(request: Request):
     """Generate a personalized financial plan from uploaded documents."""
+    user_id = _get_user_id(request)
     try:
-        plan = await asyncio.to_thread(generate_plan, "demo-user")
+        plan = await asyncio.to_thread(generate_plan, user_id)
         if "error" in plan:
             raise HTTPException(status_code=400, detail=plan["error"])
         return plan
@@ -31,9 +36,10 @@ async def generate():
 
 
 @router.get("")
-async def get_latest():
+async def get_latest(request: Request):
     """Get the latest generated plan."""
-    plan = get_plan("demo-user")
+    user_id = _get_user_id(request)
+    plan = get_plan(user_id)
     if not plan:
         return {"has_plan": False}
     return {"has_plan": True, **plan}

@@ -9,7 +9,7 @@ import logging
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException, Request, UploadFile
 
 from app.models.document import DocumentInfo, UploadResponse
 from app.rag.loader import load_from_bytes
@@ -20,11 +20,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
-# In-memory document registry (demo mode)
+# In-memory document registry (demo mode), keyed by user_id
 _documents: dict[str, list[DocumentInfo]] = {}
 
-# Demo user id
-_DEMO_USER = "demo-user"
+
+def _get_user_id(request: Request) -> str:
+    return request.headers.get("x-user-id", "demo-user")
 
 
 def _extract_summary(docs: list, filename: str) -> dict:
@@ -102,8 +103,9 @@ def _extract_summary(docs: list, filename: str) -> dict:
 
 
 @router.post("/upload", response_model=UploadResponse)
-async def upload_document(file: UploadFile):
+async def upload_document(request: Request, file: UploadFile):
     """Upload a financial document (PDF, CSV, JSON, XLSX) for RAG processing."""
+    user_id = _get_user_id(request)
     settings = get_settings()
 
     if not file.filename:
@@ -135,20 +137,20 @@ async def upload_document(file: UploadFile):
     try:
         import asyncio
         docs = await asyncio.to_thread(load_from_bytes, content, file.filename)
-        chunks_added = add_documents(_DEMO_USER, docs)
+        chunks_added = add_documents(user_id, docs)
         doc_info.status = "processed"
         doc_info.chunks = chunks_added
         doc_info.summary = _extract_summary(docs, file.filename)
-        logger.info(f"Processed {file.filename}: {chunks_added} chunks, type={doc_info.summary.get('type')}")
+        logger.info(f"[{user_id}] Processed {file.filename}: {chunks_added} chunks, type={doc_info.summary.get('type')}")
     except Exception as e:
-        logger.exception(f"Failed to process {file.filename}")
+        logger.exception(f"[{user_id}] Failed to process {file.filename}")
         doc_info.status = "failed"
         return UploadResponse(
             document=doc_info,
             message=f"Failed to process file: {e}",
         )
 
-    _documents.setdefault(_DEMO_USER, []).append(doc_info)
+    _documents.setdefault(user_id, []).append(doc_info)
 
     return UploadResponse(
         document=doc_info,
@@ -157,15 +159,17 @@ async def upload_document(file: UploadFile):
 
 
 @router.get("", response_model=list[DocumentInfo])
-async def list_documents():
+async def list_documents(request: Request):
     """List all uploaded documents with summaries."""
-    return _documents.get(_DEMO_USER, [])
+    user_id = _get_user_id(request)
+    return _documents.get(user_id, [])
 
 
 @router.get("/summary")
-async def documents_summary():
+async def documents_summary(request: Request):
     """Aggregated financial summary across all uploaded documents."""
-    user_docs = _documents.get(_DEMO_USER, [])
+    user_id = _get_user_id(request)
+    user_docs = _documents.get(user_id, [])
     processed = [d for d in user_docs if d.status == "processed" and d.summary]
 
     if not processed:
@@ -190,16 +194,18 @@ async def documents_summary():
 
 
 @router.delete("/{doc_id}")
-async def delete_document(doc_id: str):
+async def delete_document(request: Request, doc_id: str):
     """Delete a document."""
-    user_docs = _documents.get(_DEMO_USER, [])
-    _documents[_DEMO_USER] = [d for d in user_docs if d.id != doc_id]
+    user_id = _get_user_id(request)
+    user_docs = _documents.get(user_id, [])
+    _documents[user_id] = [d for d in user_docs if d.id != doc_id]
     return {"status": "deleted", "id": doc_id}
 
 
 @router.delete("")
-async def clear_all_documents():
-    """Clear all documents and vector store for the demo user."""
-    _documents.pop(_DEMO_USER, None)
-    clear_user_store(_DEMO_USER)
+async def clear_all_documents(request: Request):
+    """Clear all documents and vector store for the user."""
+    user_id = _get_user_id(request)
+    _documents.pop(user_id, None)
+    clear_user_store(user_id)
     return {"status": "cleared"}

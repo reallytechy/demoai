@@ -201,7 +201,7 @@ export default function Landing() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Ready to improve your score?</h2>
           <p className="text-brand-200 mb-8 text-lg">
-            Join thousands of users who have already started their credit journey with DemoAI.
+            Join thousands of users who have already started their credit journey with WealthifyAI.
           </p>
         </div>
       </section>
@@ -209,7 +209,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-8 px-4 sm:px-6 border-t border-slate-100">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-sm text-slate-400">© 2026 DemoAI. All rights reserved.</span>
+          <span className="text-sm text-slate-400">© 2026 WealthifyAI. All rights reserved.</span>
         </div>
       </footer>
     </div>

@@ -287,7 +287,7 @@ export default function Showcase() {
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-slate-900 mb-3">AI Showcase</h1>
           <p className="text-slate-500 max-w-2xl mx-auto">
-            Every AI feature, framework, and technique used in DemoAI — with links to try each one live.
+            Every AI feature, framework, and technique used in WealthifyAI — with links to try each one live.
           </p>
           <div className="flex items-center justify-center gap-4 mt-4">
             <span className="text-sm text-slate-400">{CATEGORIES.length} categories</span>

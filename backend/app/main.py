@@ -25,7 +25,7 @@ else:
     logger.info("LangSmith tracing disabled")
 
 app = FastAPI(
-    title="DemoAI Financial Coach API",
+    title="WealthifyAI Financial Coach API",
     description="Multi-agent AI financial advisor with RAG",
     version="0.2.0",
 )
@@ -37,7 +37,7 @@ app.add_middleware(
     allow_origins=_settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "X-User-Id"],
 )
 
 app.include_router(chat.router)
