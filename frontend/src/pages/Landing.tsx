@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
 import CreditImprovementIllustration from '../components/CreditImprovementIllustration'
 import Navbar from '../components/Navbar'
-import { signInWithGoogle } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
 
 const features = [
   {
@@ -36,14 +34,26 @@ const features = [
 
 const quickLinks = [
   {
-    to: '/dashboard',
-    title: 'Dashboard',
-    subtitle: 'Score, debt, budget',
+    to: '/upload',
+    title: 'Upload Docs',
+    subtitle: 'PDF, CSV, JSON',
+    bg: 'bg-purple-50',
+    iconColor: 'text-purple-600',
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      </svg>
+    ),
+  },
+  {
+    to: '/plan',
+    title: 'My Plan',
+    subtitle: 'Financial plan',
     bg: 'bg-blue-50',
     iconColor: 'text-blue-600',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
   },
@@ -60,60 +70,38 @@ const quickLinks = [
     ),
   },
   {
-    to: '/upload',
-    title: 'Upload Docs',
-    subtitle: 'PDF, CSV, JSON',
-    bg: 'bg-purple-50',
-    iconColor: 'text-purple-600',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-      </svg>
-    ),
-  },
-  {
-    to: '/report/get',
-    title: 'Credit Report',
-    subtitle: 'Full report view',
+    to: '/admin',
+    title: 'Tips',
+    subtitle: 'AI-generated tips',
     bg: 'bg-amber-50',
     iconColor: 'text-amber-600',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
   },
   {
-    to: '/health',
-    title: 'API Health',
-    subtitle: 'Backend status',
-    bg: 'bg-red-50',
-    iconColor: 'text-red-600',
+    to: '/showcase',
+    title: 'AI Showcase',
+    subtitle: 'All AI features',
+    bg: 'bg-indigo-50',
+    iconColor: 'text-indigo-600',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     ),
   },
 ]
 
 const steps = [
-  { step: '01', title: 'Sign in with Google', description: 'Create your account in seconds — no forms, no friction.' },
-  { step: '02', title: 'Fetch Your Report', description: 'We pull your credit data and run it through our AI engine.' },
-  { step: '03', title: 'Understand & Improve', description: 'Get a clear report, flag disputes, and follow your improvement plan.' },
+  { step: '01', title: 'Upload Your Documents', description: 'Upload credit reports, bank statements, salary slips, or photos of financial documents.' },
+  { step: '02', title: 'AI Analyzes Your Data', description: 'Our AI agents extract data, build your financial profile, and generate insights.' },
+  { step: '03', title: 'Get Personalized Advice', description: 'Chat with specialist agents for debt analysis, budgeting, savings plans, and payoff strategies.' },
 ]
 
 export default function Landing() {
-  const { user } = useAuth()
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (err) {
-      console.error('Sign-in error:', err)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -139,54 +127,21 @@ export default function Landing() {
             Understand your credit score, dispute errors, and get a personalised AI roadmap
             to the score you deserve — all in one place.
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {user ? (
-              <Link
-                to="/report/get"
-                className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-lg hover:shadow-brand-200 transition-all duration-200"
-              >
-                View Your Report
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            ) : (
-              <button
-                onClick={handleGoogleSignIn}
-                className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-lg hover:shadow-brand-200 transition-all duration-200"
-              >
-                <GoogleIcon />
-                Sign in with Google
-              </button>
-            )}
-
-            <Link
-              to="/report/get"
-              className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-slate-700 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 shadow-sm transition-all duration-200"
-            >
-              <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              View Sample Report
-            </Link>
-          </div>
-
           <CreditImprovementIllustration />
         </div>
       </section>
 
       {/* Quick Menu */}
-      <section className="py-12 px-4 sm:px-6">
+      <section className="py-2 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">Explore Features</h2>
           <p className="text-slate-500 text-center mb-8">Jump into any feature to see it in action</p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {quickLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="group flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100/50 transition-all duration-200"
+                className="group flex flex-col items-center gap-3 p-5 w-40 bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-100/50 transition-all duration-200"
               >
                 <div className={`w-12 h-12 ${link.bg} ${link.iconColor} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
                   {link.icon}
@@ -202,7 +157,7 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className=" px-4 sm:px-6 bg-slate-50">
+      <section className="py-4 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
             Everything you need to take control
@@ -222,7 +177,7 @@ export default function Landing() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-4 sm:px-6">
+      <section className="py-10 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">How it works</h2>
           <div className="space-y-6">
@@ -248,13 +203,6 @@ export default function Landing() {
           <p className="text-brand-200 mb-8 text-lg">
             Join thousands of users who have already started their credit journey with DemoAI.
           </p>
-          <button
-            onClick={handleGoogleSignIn}
-            className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-brand-600 bg-white hover:bg-brand-50 rounded-xl shadow-lg transition-all duration-200"
-          >
-            <GoogleIcon />
-            Get started for free
-          </button>
         </div>
       </section>
 
@@ -262,22 +210,9 @@ export default function Landing() {
       <footer className="py-8 px-4 sm:px-6 border-t border-slate-100">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="text-sm text-slate-400">© 2026 DemoAI. All rights reserved.</span>
-          <Link to="/report/get" className="text-sm text-brand-600 hover:text-brand-700 font-medium">
-            View Sample Report →
-          </Link>
         </div>
       </footer>
     </div>
   )
 }
 
-function GoogleIcon() {
-  return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24">
-      <path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-      <path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-      <path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-    </svg>
-  )
-}

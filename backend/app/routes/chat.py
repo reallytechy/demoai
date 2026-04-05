@@ -51,7 +51,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
         result = await _run_graph(graph, state)
     except Exception as e:
         logger.exception("Agent graph failed")
-        raise HTTPException(status_code=500, detail=f"Agent error: {e}")
+        raise HTTPException(status_code=500, detail=_friendly_error(e))
 
     # Extract response
     last_msg = result["messages"][-1]
@@ -119,7 +119,7 @@ async def chat_stream(req: ChatRequest):
 
         except Exception as e:
             logger.exception("Streaming agent error")
-            yield {"event": "error", "data": json.dumps({"error": str(e)})}
+            yield {"event": "error", "data": json.dumps({"error": _friendly_error(e)})}
 
     return EventSourceResponse(event_generator())
 
@@ -135,6 +135,46 @@ async def clear_session(session_id: str):
     """Clear a chat session."""
     _sessions.pop(session_id, None)
     return {"status": "cleared"}
+
+
+def _friendly_error(e: Exception) -> str:
+    """Convert raw API errors into human-readable messages."""
+    msg = str(e).lower()
+
+    if "quota" in msg or "insufficient_quota" in msg or "exceeded" in msg:
+        return (
+            "The AI service has run out of credits. "
+            "Please check your API billing at the provider's dashboard "
+            "(OpenRouter: openrouter.ai/credits, OpenAI: platform.openai.com/settings/organization/billing)."
+        )
+    if "401" in msg or "unauthorized" in msg or "invalid.*key" in msg or "invalid_api_key" in msg:
+        return (
+            "The AI API key is invalid or expired. "
+            "Please check OPENROUTER_API_KEY or OPENAI_API_KEY in backend/.env and restart the server."
+        )
+    if "rate_limit" in msg or "429" in msg or "too many requests" in msg:
+        return (
+            "Too many requests — the AI service is rate-limiting us. "
+            "Please wait a moment and try again."
+        )
+    if "timeout" in msg or "timed out" in msg:
+        return (
+            "The AI service took too long to respond. "
+            "Please try again or use a faster model in backend/.env."
+        )
+    if "connection" in msg or "connect" in msg:
+        return (
+            "Cannot reach the AI service. "
+            "Please check your internet connection and try again."
+        )
+    if "model" in msg and ("not found" in msg or "does not exist" in msg):
+        return (
+            "The configured AI model was not found. "
+            "Please check OPENROUTER_MODEL in backend/.env and restart the server."
+        )
+
+    # Fallback — still clean it up
+    return f"Something went wrong with the AI service. Details: {str(e)[:200]}"
 
 
 async def _run_graph(graph, state: dict) -> dict:

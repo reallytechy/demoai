@@ -63,7 +63,7 @@ class Settings(BaseSettings):
 
     # --- Documents ---
     max_upload_size_mb: int = Field(default=10)
-    allowed_file_types: str = Field(default="pdf,csv,json,xlsx")
+    allowed_file_types: str = Field(default="pdf,csv,json,xlsx,png,jpg,jpeg,webp")
 
     @field_validator("supabase_url", mode="before")
     @classmethod

@@ -10,7 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.settings import _BACKEND_ROOT
 load_dotenv(_BACKEND_ROOT / ".env", override=True)
 
-from app.routes import chat, dashboard, documents, reports
+from fastapi.staticfiles import StaticFiles
+
+from app.routes import blog, chat, documents, plan
 from app.settings import get_settings
 
 logging.basicConfig(level=logging.INFO)
@@ -38,10 +40,15 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
-app.include_router(reports.router)
 app.include_router(chat.router)
 app.include_router(documents.router)
-app.include_router(dashboard.router)
+app.include_router(blog.router)
+app.include_router(plan.router)
+
+# Serve generated blog media (images, audio) as static files
+_media_dir = _BACKEND_ROOT / "app" / "data" / "blogs"
+_media_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/media/blogs", StaticFiles(directory=str(_media_dir)), name="blog-media")
 
 
 @app.get("/health")

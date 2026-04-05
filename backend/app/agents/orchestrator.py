@@ -81,23 +81,47 @@ def _build_context_string(state: FinancialAgentState) -> str:
     if rag_ctx:
         parts.append(f"Retrieved Documents:\n{rag_ctx}")
 
-    return "\n\n".join(parts) if parts else "No financial data available yet. Ask the user for information."
+    if not parts:
+        return (
+            "No financial documents have been uploaded yet. "
+            "Ask the user to upload their credit report, bank statement, or other financial documents "
+            "at the Upload page so you can analyze their data. "
+            "In the meantime, you can answer general financial questions."
+        )
+    return "\n\n".join(parts)
 
 
 # ── Graph nodes ──────────────────────────────────────────────
 
 
 def load_context_node(state: FinancialAgentState) -> dict[str, Any]:
-    """Load user financial context (from sample data for now)."""
-    # In production, this queries Supabase for the user's profile + debts.
-    # For demo, we use the sample credit report as context.
-    from app.agents._sample_data import get_sample_financial_context
+    """Load user financial context from uploaded documents via RAG."""
+    from app.rag.vectorstore import search
 
-    ctx = get_sample_financial_context()
+    user_id = state.get("user_id", "demo-user")
+    messages = state.get("messages", [])
+
+    # RAG: retrieve relevant chunks from uploaded documents
+    retrieved_context = ""
+    if messages:
+        last_message = messages[-1].content if hasattr(messages[-1], "content") else str(messages[-1])
+        docs = search(user_id, last_message, k=8)
+        if docs:
+            retrieved_context = "\n\n".join(
+                f"[Document chunk]: {doc.page_content}" for doc in docs
+            )
+            logger.info("RAG: retrieved %d chunks for query", len(docs))
+
+    # Build profile from retrieved context (no hardcoded data)
+    profile = {}
+    debts: list[dict] = []
+    if not retrieved_context:
+        logger.info("No documents uploaded yet — agents will work with user's questions only")
+
     return {
-        "financial_profile": ctx["profile"],
-        "debt_records": ctx["debts"],
-        "retrieved_context": "",
+        "financial_profile": profile,
+        "debt_records": debts,
+        "retrieved_context": retrieved_context,
     }
 
 

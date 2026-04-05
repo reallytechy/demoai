@@ -29,13 +29,9 @@ interface EndpointResult {
 
 const ENDPOINTS = [
   { name: 'Health Check', path: '/health' },
-  { name: 'Credit Report', path: '/api/report/get' },
-  { name: 'Dashboard Overview', path: '/api/dashboard/overview' },
-  { name: 'Debt Breakdown', path: '/api/dashboard/debt-breakdown' },
-  { name: 'Payoff Plan', path: '/api/dashboard/payoff-plan' },
-  { name: 'Budget Analysis', path: '/api/dashboard/budget-analysis' },
-  { name: 'AI Insights', path: '/api/dashboard/insights' },
   { name: 'Document List', path: '/api/documents' },
+  { name: 'Document Summary', path: '/api/documents/summary' },
+  { name: 'Blog List', path: '/api/blog' },
 ]
 
 function apiBaseUrl(): string {

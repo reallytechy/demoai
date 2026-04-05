@@ -123,3 +123,42 @@ export async function listDocuments(): Promise<DocumentInfo[]> {
 export async function deleteDocument(docId: string): Promise<void> {
   await request(`/api/documents/${docId}`, { method: 'DELETE' })
 }
+
+// ── Blog ──
+export interface BlogPost {
+  id: string
+  topic: string
+  title: string
+  content: string
+  image_url: string | null
+  audio_url: string | null
+  created_at: string
+}
+
+export interface BlogListItem {
+  id: string
+  title: string
+  topic: string
+  image_url: string | null
+  created_at: string
+}
+
+export async function generateBlog(topic: string): Promise<BlogPost> {
+  return request<BlogPost>('/api/blog/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic }),
+  })
+}
+
+export async function listBlogs(): Promise<BlogListItem[]> {
+  return request<BlogListItem[]>('/api/blog')
+}
+
+export async function getBlog(id: string): Promise<BlogPost> {
+  return request<BlogPost>(`/api/blog/${id}`)
+}
+
+export async function deleteBlog(id: string): Promise<void> {
+  await request(`/api/blog/${id}`, { method: 'DELETE' })
+}

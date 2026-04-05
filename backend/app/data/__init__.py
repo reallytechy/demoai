@@ -1,1 +1,1 @@
-# Package data directory (sample_credit_score.json ships with the API).
+# Package data directory (blogs/ and user uploads).
