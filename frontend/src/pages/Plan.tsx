@@ -47,87 +47,130 @@ export default function Plan() {
     }
   }
 
-  const buildPlanContent = () => {
+  const buildPlanHtml = () => {
     if (!plan) return ''
-    const lines: string[] = []
-    lines.push('YOUR FINANCIAL PLAN')
-    lines.push('='.repeat(40))
+    const h: string[] = []
+
+    const section = (title: string, content: string) =>
+      `<div style="margin-bottom:24px"><h2 style="color:#1e293b;font-size:18px;border-bottom:2px solid #e2e8f0;padding-bottom:8px;margin-bottom:12px">${title}</h2>${content}</div>`
+
+    const card = (label: string, value: string, color = '#1e293b') =>
+      `<td style="padding:8px 12px;background:#f8fafc;border-radius:8px;text-align:center;min-width:120px"><div style="font-size:18px;font-weight:bold;color:${color}">${value}</div><div style="font-size:12px;color:#94a3b8">${label}</div></td>`
+
+    h.push(`<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#334155">`)
+    h.push(`<h1 style="color:#1e293b;font-size:24px;margin-bottom:4px">Your Financial Plan</h1>`)
+    h.push(`<p style="color:#94a3b8;font-size:14px;margin-top:0">Personalized plan generated from your uploaded documents</p>`)
 
     if (plan.snapshot && !plan.snapshot.raw) {
-      lines.push('\n## Financial Snapshot')
-      lines.push(`Monthly Income: ₹${fmt(plan.snapshot.monthly_income || 0)}`)
-      lines.push(`Monthly Expenses: ₹${fmt(plan.snapshot.monthly_expenses || 0)}`)
-      lines.push(`Credit Score: ${plan.snapshot.credit_score || '—'} (${plan.snapshot.credit_score_band || '—'})`)
-      lines.push(`Total Debt: ₹${fmt(plan.snapshot.total_debt || 0)}`)
-      lines.push(`Monthly Surplus: ₹${fmt(plan.snapshot.monthly_surplus || 0)}`)
-      lines.push(`DTI Ratio: ${plan.snapshot.debt_to_income_pct || 0}%`)
-      if (plan.snapshot.accounts?.length > 0) {
-        lines.push('\nAccounts:')
-        plan.snapshot.accounts.forEach((a: any) => {
-          lines.push(`  - ${a.name} (${a.type}) ${a.balance ? `₹${fmt(a.balance)}` : ''} [${a.status}]`)
+      const s = plan.snapshot
+      let cards = `<table style="width:100%;border-spacing:8px"><tr>`
+      cards += card('Monthly Income', `₹${fmt(s.monthly_income || 0)}`, '#16a34a')
+      cards += card('Monthly Expenses', `₹${fmt(s.monthly_expenses || 0)}`, '#dc2626')
+      cards += card('Credit Score', `${s.credit_score || '—'}`, s.credit_score < 600 ? '#dc2626' : '#16a34a')
+      cards += card('Total Debt', `₹${fmt(s.total_debt || 0)}`, '#dc2626')
+      cards += `</tr><tr>`
+      cards += card('Monthly Surplus', `₹${fmt(s.monthly_surplus || 0)}`, '#16a34a')
+      cards += card('DTI Ratio', `${s.debt_to_income_pct || 0}%`, '#d97706')
+      cards += card('Score Band', s.credit_score_band || '—', '#3b82f6')
+      cards += `<td></td>`
+      cards += `</tr></table>`
+
+      if (s.accounts?.length > 0) {
+        cards += `<div style="margin-top:12px"><div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:6px">Accounts Found</div>`
+        s.accounts.forEach((a: any) => {
+          const statusColor = a.status === 'Active' ? '#16a34a' : '#dc2626'
+          cards += `<span style="display:inline-block;background:#f1f5f9;padding:4px 8px;border-radius:6px;font-size:12px;margin:2px 4px 2px 0">${a.name} — ${a.type} ${a.balance ? `(₹${fmt(a.balance)})` : ''} <span style="color:${statusColor}">${a.status}</span></span>`
         })
+        cards += `</div>`
       }
+
+      h.push(section('Financial Snapshot', cards))
     }
 
     if (plan.debt_actions?.actions) {
-      lines.push('\n## Urgent Actions')
-      if (plan.debt_actions.risk_level) lines.push(`Risk Level: ${plan.debt_actions.risk_level.toUpperCase()}`)
+      let content = ''
+      if (plan.debt_actions.risk_level) {
+        const riskColors: Record<string, string> = { critical: '#dc2626', high: '#ea580c', moderate: '#d97706', low: '#16a34a' }
+        const rc = riskColors[plan.debt_actions.risk_level] || '#64748b'
+        content += `<span style="background:${rc}15;color:${rc};padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600">Risk: ${plan.debt_actions.risk_level.toUpperCase()}</span><br/><br/>`
+      }
       plan.debt_actions.actions.forEach((a: any, i: number) => {
-        lines.push(`${a.priority || i + 1}. ${a.action} — ${a.reason}${a.impact ? ` [${a.impact}]` : ''}`)
+        const impactColors: Record<string, string> = { high: '#dc2626', medium: '#d97706', low: '#64748b' }
+        content += `<div style="display:flex;align-items:flex-start;gap:10px;background:#fef2f2;border-radius:8px;padding:10px;margin-bottom:6px">`
+        content += `<span style="flex-shrink:0;width:24px;height:24px;background:#fee2e2;color:#dc2626;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold">${a.priority || i + 1}</span>`
+        content += `<div><div style="font-size:14px;font-weight:500;color:#1e293b">${a.action}</div><div style="font-size:12px;color:#64748b">${a.reason}</div></div>`
+        if (a.impact) content += `<span style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;background:${impactColors[a.impact] || '#64748b'}15;color:${impactColors[a.impact] || '#64748b'}">${a.impact}</span>`
+        content += `</div>`
       })
+      h.push(section('Urgent Actions', content))
     }
 
     if (plan.budget_plan?.recommended_budget) {
-      lines.push('\n## Budget Plan (50/30/20)')
+      let content = `<table style="width:100%;border-spacing:8px"><tr>`
       for (const key of ['needs', 'wants', 'savings']) {
         const b = plan.budget_plan.recommended_budget[key]
-        if (b) lines.push(`${key}: ₹${fmt(b.amount)} (${b.pct}%)`)
+        if (b) {
+          const colors: Record<string, string> = { needs: '#3b82f6', wants: '#8b5cf6', savings: '#16a34a' }
+          content += `<td style="padding:12px;background:${colors[key]}10;border-radius:12px;text-align:center"><div style="font-size:18px;font-weight:bold;color:#1e293b">₹${fmt(b.amount)}</div><div style="font-size:12px;color:#64748b;text-transform:capitalize">${key} (${b.pct}%)</div></td>`
+        }
       }
+      content += `</tr></table>`
+
       if (plan.budget_plan.top_cuts?.length > 0) {
-        lines.push('\nWhere to Cut:')
+        content += `<div style="margin-top:12px"><div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:6px">Where to Cut</div>`
         plan.budget_plan.top_cuts.forEach((c: any) => {
-          lines.push(`  - ${c.area}: ${c.suggestion} — Save ₹${fmt(c.save_amount)}`)
+          content += `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:14px"><span style="color:#475569">${c.area}: ${c.suggestion}</span><span style="color:#16a34a;font-weight:500">Save ₹${fmt(c.save_amount)}</span></div>`
         })
+        content += `</div>`
       }
+      h.push(section('Budget Plan (50/30/20)', content))
     }
 
     if (plan.payoff_plan && !plan.payoff_plan.raw) {
-      lines.push('\n## Debt Payoff Plan')
-      lines.push(`Strategy: ${(plan.payoff_plan.strategy || '—').toUpperCase()}`)
-      lines.push(`Debt-Free In: ${plan.payoff_plan.debt_free_date || `${plan.payoff_plan.total_months || '—'} months`}`)
-      lines.push(`Extra/Month: ₹${fmt(plan.payoff_plan.extra_monthly_payment || 0)}`)
-      lines.push(`Interest Saved: ₹${fmt(plan.payoff_plan.total_interest_saved || 0)}`)
-      if (plan.payoff_plan.reason) lines.push(plan.payoff_plan.reason)
-      if (plan.payoff_plan.payoff_order?.length > 0) {
-        lines.push('\nPayoff Order:')
-        plan.payoff_plan.payoff_order.forEach((p: any, i: number) => {
-          lines.push(`  ${i + 1}. ${p.name} — ₹${fmt(p.balance)} (Month ${p.payoff_month})`)
+      const pp = plan.payoff_plan
+      let content = `<table style="width:100%;border-spacing:8px"><tr>`
+      content += card('Strategy', (pp.strategy || '—').toUpperCase(), '#3b82f6')
+      content += card('Debt-Free In', pp.debt_free_date || `${pp.total_months || '—'} months`, '#16a34a')
+      content += card('Extra/Month', `₹${fmt(pp.extra_monthly_payment || 0)}`, '#d97706')
+      content += card('Interest Saved', `₹${fmt(pp.total_interest_saved || 0)}`, '#16a34a')
+      content += `</tr></table>`
+
+      if (pp.reason) content += `<p style="font-size:14px;color:#475569;margin:8px 0">${pp.reason}</p>`
+
+      if (pp.payoff_order?.length > 0) {
+        content += `<div style="margin-top:8px"><div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:6px">Payoff Order</div>`
+        pp.payoff_order.forEach((p: any, i: number) => {
+          content += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="width:24px;height:24px;background:#fff7ed;color:#ea580c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold">${i + 1}</span><span style="flex:1;font-size:14px;color:#475569">${p.name}</span><span style="font-size:14px;color:#64748b">₹${fmt(p.balance)}</span><span style="font-size:12px;color:#94a3b8">Month ${p.payoff_month}</span></div>`
         })
+        content += `</div>`
       }
+      h.push(section('Debt Payoff Plan', content))
     }
 
     if (plan.savings_goals?.phases) {
-      lines.push('\n## Savings Goals')
+      let content = ''
       if (plan.savings_goals.emergency_fund_target > 0) {
-        lines.push(`Emergency Fund Target: ₹${fmt(plan.savings_goals.emergency_fund_target)} (${plan.savings_goals.emergency_fund_months || 3} months)`)
+        content += `<div style="background:#f0fdf4;border-radius:12px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:500;color:#166534">Emergency Fund Target</div><div style="font-size:12px;color:#16a34a">${plan.savings_goals.emergency_fund_months || 3} months of expenses</div></div><div style="font-size:18px;font-weight:bold;color:#15803d">₹${fmt(plan.savings_goals.emergency_fund_target)}</div></div>`
       }
       plan.savings_goals.phases.forEach((p: any, i: number) => {
-        lines.push(`${i + 1}. ${p.name} (Months ${p.months}): ${p.goal} — Save ₹${fmt(p.monthly_amount)}/month, Target: ₹${fmt(p.target_total)}`)
+        content += `<div style="display:flex;align-items:flex-start;gap:10px;background:#f8fafc;border-radius:8px;padding:10px;margin-bottom:6px"><span style="flex-shrink:0;width:28px;height:28px;background:#dcfce7;color:#16a34a;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold">${i + 1}</span><div><div style="font-size:14px;font-weight:500;color:#1e293b">${p.name} <span style="color:#94a3b8;font-weight:400">(Months ${p.months})</span></div><div style="font-size:12px;color:#475569;margin-top:2px">${p.goal}</div><div style="font-size:12px;color:#64748b;margin-top:4px">Save ₹${fmt(p.monthly_amount)}/month → Target: ₹${fmt(p.target_total)}</div></div></div>`
       })
+      h.push(section('Savings Goals', content))
     }
 
     if (plan.created_at) {
-      lines.push(`\nGenerated: ${new Date(plan.created_at).toLocaleString()}`)
+      h.push(`<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px">Generated ${new Date(plan.created_at).toLocaleString()} — based on your uploaded documents</p>`)
     }
 
-    return lines.join('\n')
+    h.push(`</div>`)
+    return h.join('')
   }
 
   const handleSendWebhook = async (email: string) => {
     setSending(true)
     setSendStatus('idle')
     try {
-      const content = buildPlanContent()
+      const content = buildPlanHtml()
       const res = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
