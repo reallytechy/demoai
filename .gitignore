@@ -16,6 +16,9 @@ dist/
 # Build output
 dist/
 
+# Blog content (generated / local assets)
+backend/app/data/blogs/
+
 # Backup
 *.real
 
