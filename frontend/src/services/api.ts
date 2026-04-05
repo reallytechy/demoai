@@ -11,10 +11,29 @@ function apiBaseUrl(): string {
   return ''
 }
 
+/**
+ * Anonymous user ID — persists in localStorage so each browser
+ * gets its own isolated data (documents, chat, plan).
+ */
+export function getUserId(): string {
+  const key = 'wealthifyai_user_id'
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem(key, id)
+  }
+  return id
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const base = apiBaseUrl()
   const url = `${base}${path.startsWith('/') ? path : `/${path}`}`
-  const response = await fetch(url, options)
+
+  // Inject X-User-Id header into every request
+  const headers = new Headers(options?.headers)
+  headers.set('X-User-Id', getUserId())
+
+  const response = await fetch(url, { ...options, headers })
   if (!response.ok) {
     const message = await response.text().catch(() => response.statusText)
     throw new Error(`API error ${response.status}: ${message}`)
@@ -107,6 +126,7 @@ export async function uploadDocument(file: File): Promise<{ document: DocumentIn
   const base = apiBaseUrl()
   const response = await fetch(`${base}/api/documents/upload`, {
     method: 'POST',
+    headers: { 'X-User-Id': getUserId() },
     body: formData,
   })
   if (!response.ok) {

@@ -8,12 +8,16 @@ import logging
 import uuid
 from collections import defaultdict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from langchain_core.messages import HumanMessage
 from sse_starlette.sse import EventSourceResponse
 
 from app.agents.orchestrator import AGENT_DISPLAY_NAMES, get_graph
 from app.models.chat import ChatRequest, ChatResponse
+
+
+def _get_user_id(request: Request) -> str:
+    return request.headers.get("x-user-id", "demo-user")
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +28,17 @@ _sessions: dict[str, list[dict]] = defaultdict(list)
 
 
 @router.post("", response_model=ChatResponse)
-async def chat(req: ChatRequest) -> ChatResponse:
+async def chat(request: Request, req: ChatRequest) -> ChatResponse:
     """Send a message and get a response from the AI financial coach."""
+    user_id = _get_user_id(request)
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     graph = get_graph()
 
     # Build state with conversation history
-    history = _sessions[req.session_id]
+    session_key = f"{user_id}:{req.session_id}"
+    history = _sessions[session_key]
     messages = [HumanMessage(content=m["content"]) if m["role"] == "user"
                 else HumanMessage(content=m["content"])  # simplified for demo
                 for m in history[-20:]]  # keep last 20 messages
@@ -40,7 +46,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
     state = {
         "messages": messages,
-        "user_id": "demo-user",
+        "user_id": user_id,
         "financial_profile": {},
         "debt_records": [],
         "retrieved_context": "",
@@ -59,8 +65,8 @@ async def chat(req: ChatRequest) -> ChatResponse:
     content = last_msg.content if isinstance(last_msg.content, str) else str(last_msg.content)
 
     # Store in session
-    _sessions[req.session_id].append({"role": "user", "content": req.message})
-    _sessions[req.session_id].append({"role": "assistant", "content": content, "agent": agent_name})
+    _sessions[session_key].append({"role": "user", "content": req.message})
+    _sessions[session_key].append({"role": "assistant", "content": content, "agent": agent_name})
 
     return ChatResponse(
         message=content,
@@ -71,20 +77,22 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
 
 @router.post("/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(request: Request, req: ChatRequest):
     """SSE streaming version of chat — streams tokens as they arrive."""
+    user_id = _get_user_id(request)
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     graph = get_graph()
 
-    history = _sessions[req.session_id]
+    session_key = f"{user_id}:{req.session_id}"
+    history = _sessions[session_key]
     messages = [HumanMessage(content=m["content"]) for m in history[-20:]]
     messages.append(HumanMessage(content=req.message))
 
     state = {
         "messages": messages,
-        "user_id": "demo-user",
+        "user_id": user_id,
         "financial_profile": {},
         "debt_records": [],
         "retrieved_context": "",
@@ -112,8 +120,8 @@ async def chat_stream(req: ChatRequest):
                 })}
 
             # Store in session
-            _sessions[req.session_id].append({"role": "user", "content": req.message})
-            _sessions[req.session_id].append({"role": "assistant", "content": content, "agent": agent_name})
+            _sessions[session_key].append({"role": "user", "content": req.message})
+            _sessions[session_key].append({"role": "assistant", "content": content, "agent": agent_name})
 
             yield {"event": "done", "data": json.dumps({"session_id": req.session_id})}
 
@@ -125,15 +133,19 @@ async def chat_stream(req: ChatRequest):
 
 
 @router.get("/sessions/{session_id}/history")
-async def get_history(session_id: str):
+async def get_history(request: Request, session_id: str):
     """Get chat history for a session."""
-    return {"session_id": session_id, "messages": _sessions.get(session_id, [])}
+    user_id = _get_user_id(request)
+    session_key = f"{user_id}:{session_id}"
+    return {"session_id": session_id, "messages": _sessions.get(session_key, [])}
 
 
 @router.delete("/sessions/{session_id}")
-async def clear_session(session_id: str):
+async def clear_session(request: Request, session_id: str):
     """Clear a chat session."""
-    _sessions.pop(session_id, None)
+    user_id = _get_user_id(request)
+    session_key = f"{user_id}:{session_id}"
+    _sessions.pop(session_key, None)
     return {"status": "cleared"}
 
 

@@ -68,7 +68,10 @@ export default function Upload() {
   const loadSummary = useCallback(async () => {
     try {
       const base = import.meta.env.VITE_BACKEND_URL || ''
-      const res = await fetch(`${base}/api/documents/summary`)
+      const { getUserId } = await import('../services/api')
+      const res = await fetch(`${base}/api/documents/summary`, {
+        headers: { 'X-User-Id': getUserId() },
+      })
       const data = await res.json()
       setHasData(data.has_data)
       setSummaries(data.documents || [])

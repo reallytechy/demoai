@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { getUserId } from '../services/api'
 
 function fmt(n: number) {
   return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n)
@@ -14,9 +15,10 @@ export default function Plan() {
   const [error, setError] = useState('')
 
   const base = import.meta.env.VITE_BACKEND_URL || ''
+  const userHeaders = { 'X-User-Id': getUserId() }
 
   useEffect(() => {
-    fetch(`${base}/api/plan`)
+    fetch(`${base}/api/plan`, { headers: userHeaders })
       .then((r) => r.json())
       .then((d) => { setHasPlan(d.has_plan); if (d.has_plan) setPlan(d) })
       .catch(() => {})
@@ -27,7 +29,7 @@ export default function Plan() {
     setGenerating(true)
     setError('')
     try {
-      const r = await fetch(`${base}/api/plan/generate`, { method: 'POST' })
+      const r = await fetch(`${base}/api/plan/generate`, { method: 'POST', headers: userHeaders })
       if (!r.ok) {
         const d = await r.json().catch(() => ({ detail: 'Failed' }))
         throw new Error(d.detail || 'Generation failed')
