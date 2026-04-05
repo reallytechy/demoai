@@ -11,9 +11,14 @@ export default function Plan() {
   const [hasPlan, setHasPlan] = useState(false)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendStatus, setSendStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
   const [error, setError] = useState('')
 
   const base = import.meta.env.VITE_BACKEND_URL || ''
+  const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || ''
 
   useEffect(() => {
     fetch(`${base}/api/plan`)
@@ -42,6 +47,105 @@ export default function Plan() {
     }
   }
 
+  const buildPlanContent = () => {
+    if (!plan) return ''
+    const lines: string[] = []
+    lines.push('YOUR FINANCIAL PLAN')
+    lines.push('='.repeat(40))
+
+    if (plan.snapshot && !plan.snapshot.raw) {
+      lines.push('\n## Financial Snapshot')
+      lines.push(`Monthly Income: ₹${fmt(plan.snapshot.monthly_income || 0)}`)
+      lines.push(`Monthly Expenses: ₹${fmt(plan.snapshot.monthly_expenses || 0)}`)
+      lines.push(`Credit Score: ${plan.snapshot.credit_score || '—'} (${plan.snapshot.credit_score_band || '—'})`)
+      lines.push(`Total Debt: ₹${fmt(plan.snapshot.total_debt || 0)}`)
+      lines.push(`Monthly Surplus: ₹${fmt(plan.snapshot.monthly_surplus || 0)}`)
+      lines.push(`DTI Ratio: ${plan.snapshot.debt_to_income_pct || 0}%`)
+      if (plan.snapshot.accounts?.length > 0) {
+        lines.push('\nAccounts:')
+        plan.snapshot.accounts.forEach((a: any) => {
+          lines.push(`  - ${a.name} (${a.type}) ${a.balance ? `₹${fmt(a.balance)}` : ''} [${a.status}]`)
+        })
+      }
+    }
+
+    if (plan.debt_actions?.actions) {
+      lines.push('\n## Urgent Actions')
+      if (plan.debt_actions.risk_level) lines.push(`Risk Level: ${plan.debt_actions.risk_level.toUpperCase()}`)
+      plan.debt_actions.actions.forEach((a: any, i: number) => {
+        lines.push(`${a.priority || i + 1}. ${a.action} — ${a.reason}${a.impact ? ` [${a.impact}]` : ''}`)
+      })
+    }
+
+    if (plan.budget_plan?.recommended_budget) {
+      lines.push('\n## Budget Plan (50/30/20)')
+      for (const key of ['needs', 'wants', 'savings']) {
+        const b = plan.budget_plan.recommended_budget[key]
+        if (b) lines.push(`${key}: ₹${fmt(b.amount)} (${b.pct}%)`)
+      }
+      if (plan.budget_plan.top_cuts?.length > 0) {
+        lines.push('\nWhere to Cut:')
+        plan.budget_plan.top_cuts.forEach((c: any) => {
+          lines.push(`  - ${c.area}: ${c.suggestion} — Save ₹${fmt(c.save_amount)}`)
+        })
+      }
+    }
+
+    if (plan.payoff_plan && !plan.payoff_plan.raw) {
+      lines.push('\n## Debt Payoff Plan')
+      lines.push(`Strategy: ${(plan.payoff_plan.strategy || '—').toUpperCase()}`)
+      lines.push(`Debt-Free In: ${plan.payoff_plan.debt_free_date || `${plan.payoff_plan.total_months || '—'} months`}`)
+      lines.push(`Extra/Month: ₹${fmt(plan.payoff_plan.extra_monthly_payment || 0)}`)
+      lines.push(`Interest Saved: ₹${fmt(plan.payoff_plan.total_interest_saved || 0)}`)
+      if (plan.payoff_plan.reason) lines.push(plan.payoff_plan.reason)
+      if (plan.payoff_plan.payoff_order?.length > 0) {
+        lines.push('\nPayoff Order:')
+        plan.payoff_plan.payoff_order.forEach((p: any, i: number) => {
+          lines.push(`  ${i + 1}. ${p.name} — ₹${fmt(p.balance)} (Month ${p.payoff_month})`)
+        })
+      }
+    }
+
+    if (plan.savings_goals?.phases) {
+      lines.push('\n## Savings Goals')
+      if (plan.savings_goals.emergency_fund_target > 0) {
+        lines.push(`Emergency Fund Target: ₹${fmt(plan.savings_goals.emergency_fund_target)} (${plan.savings_goals.emergency_fund_months || 3} months)`)
+      }
+      plan.savings_goals.phases.forEach((p: any, i: number) => {
+        lines.push(`${i + 1}. ${p.name} (Months ${p.months}): ${p.goal} — Save ₹${fmt(p.monthly_amount)}/month, Target: ₹${fmt(p.target_total)}`)
+      })
+    }
+
+    if (plan.created_at) {
+      lines.push(`\nGenerated: ${new Date(plan.created_at).toLocaleString()}`)
+    }
+
+    return lines.join('\n')
+  }
+
+  const handleSendWebhook = async (email: string) => {
+    setSending(true)
+    setSendStatus('idle')
+    try {
+      const content = buildPlanContent()
+      const res = await fetch(n8nWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, content }),
+      })
+      if (!res.ok) throw new Error('Webhook failed')
+      setSendStatus('success')
+      setShowEmailModal(false)
+      setEmailInput('')
+      setTimeout(() => setSendStatus('idle'), 3000)
+    } catch {
+      setSendStatus('error')
+      setTimeout(() => setSendStatus('idle'), 3000)
+    } finally {
+      setSending(false)
+    }
+  }
+
   if (loading) {
     return <div className="min-h-screen bg-slate-50"><Navbar /><div className="pt-20 text-center text-slate-500">Loading...</div></div>
   }
@@ -55,13 +159,29 @@ export default function Plan() {
             <h1 className="text-2xl font-bold text-slate-900">Your Financial Plan</h1>
             <p className="text-slate-500 text-sm">Personalized plan generated from your uploaded documents</p>
           </div>
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 text-sm font-medium transition-colors"
-          >
-            {generating ? 'Generating...' : hasPlan ? 'Regenerate' : 'Generate Plan'}
-          </button>
+          <div className="flex items-center gap-2">
+            {hasPlan && plan && n8nWebhookUrl && (
+              <button
+                onClick={() => { setSendStatus('idle'); setShowEmailModal(true) }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  sendStatus === 'success'
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : sendStatus === 'error'
+                    ? 'bg-red-100 text-red-700 border border-red-300'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                {sendStatus === 'success' ? 'Sent!' : sendStatus === 'error' ? 'Failed' : 'Send via Email'}
+              </button>
+            )}
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              {generating ? 'Generating...' : hasPlan ? 'Regenerate' : 'Generate Plan'}
+            </button>
+          </div>
         </div>
 
         {generating && (
@@ -243,6 +363,48 @@ export default function Plan() {
           </div>
         )}
       </div>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowEmailModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">Send Plan via Email</h3>
+            <p className="text-sm text-slate-500 mb-4">Enter the email address to receive your financial plan.</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (emailInput.trim()) handleSendWebhook(emailInput.trim())
+              }}
+            >
+              <input
+                type="email"
+                required
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEmailModal(false)}
+                  className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={sending || !emailInput.trim()}
+                  className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 text-sm font-medium transition-colors"
+                >
+                  {sending ? 'Sending...' : 'Send'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
