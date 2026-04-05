@@ -38,7 +38,9 @@ export default function Chat() {
   }, [])
 
   useEffect(() => {
-    scrollToBottom()
+    if (messages.length > 0) {
+      scrollToBottom()
+    }
   }, [messages, scrollToBottom])
 
   const handleSend = async (text?: string) => {
@@ -62,7 +64,6 @@ export default function Chat() {
       ])
     } catch (err: any) {
       const raw = err.message || 'Unknown error'
-      // Extract the friendly detail from "API error 500: {json}" format
       let friendly = raw
       try {
         const jsonMatch = raw.match(/\{.*\}/)
@@ -93,75 +94,80 @@ export default function Chat() {
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="pt-16 max-w-4xl mx-auto flex flex-col h-[calc(100vh-4rem)]">
-        {/* Messages area */}
+        {/* Scrollable area — hero + suggested questions always at top, messages below */}
         <div className="flex-1 overflow-y-auto px-4">
-          {messages.length === 0 && (
-            <div className="text-center py-2">
-              <div className="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-semibold text-slate-900 mb-2">AI Financial Coach</h2>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto">
-                Ask me about your debts, savings, budget, or debt payoff strategies. I have access to your credit report data.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
-                {SUGGESTED_QUESTIONS.map((q) => (
-                  <button
-                    key={q.text}
-                    onClick={() => handleSend(q.text)}
-                    className="relative text-left p-3 pt-5 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm text-slate-700 transition-colors"
-                  >
-                    <span className={`absolute -top-2.5 right-3 text-xs font-medium px-2 py-0.5 rounded-full ${AGENT_COLORS[q.agentKey] || 'bg-gray-100 text-gray-700'}`}>
-                      {q.agent}
-                    </span>
-                    {q.text}
-                  </button>
-                ))}
-              </div>
+          {/* Hero + Suggested Questions — always visible */}
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
             </div>
-          )}
-
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] ${msg.role === 'user' ? 'order-1' : ''}`}>
-                {msg.role === 'assistant' && msg.agentName && (
-                  <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-1 ${AGENT_COLORS[msg.agentName] || 'bg-gray-100 text-gray-700'}`}>
-                    {msg.agentDisplayName || msg.agentName}
-                  </span>
-                )}
-                <div
-                  className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-brand-600 text-white'
-                      : msg.agentName === 'error'
-                        ? 'bg-red-50 border border-red-200 text-red-800'
-                        : 'bg-white border border-slate-200 text-slate-800'
-                  }`}
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">AI Financial Coach</h2>
+            <p className="text-slate-500 mb-6 max-w-md mx-auto">
+              Ask me about your debts, savings, budget, or debt payoff strategies. I have access to your credit report data.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+              {SUGGESTED_QUESTIONS.map((q) => (
+                <button
+                  key={q.text}
+                  onClick={() => handleSend(q.text)}
+                  disabled={loading}
+                  className="relative text-left p-3 pt-5 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 text-sm text-slate-700 transition-colors disabled:opacity-50"
                 >
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
-                </div>
-              </div>
+                  <span className={`absolute -top-2.5 right-3 text-xs font-medium px-2 py-0.5 rounded-full ${AGENT_COLORS[q.agentKey] || 'bg-gray-100 text-gray-700'}`}>
+                    {q.agent}
+                  </span>
+                  {q.text}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
 
-          {loading && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          {/* Messages — appended below the hero */}
+          {messages.length > 0 && (
+            <div className="border-t border-slate-200 mt-4 pt-4 space-y-4">
+              {messages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] ${msg.role === 'user' ? 'order-1' : ''}`}>
+                    {msg.role === 'assistant' && msg.agentName && (
+                      <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-1 ${AGENT_COLORS[msg.agentName] || 'bg-gray-100 text-gray-700'}`}>
+                        {msg.agentDisplayName || msg.agentName}
+                      </span>
+                    )}
+                    <div
+                      className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-brand-600 text-white'
+                          : msg.agentName === 'error'
+                            ? 'bg-red-50 border border-red-200 text-red-800'
+                            : 'bg-white border border-slate-200 text-slate-800'
+                      }`}
+                    >
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
+
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
-        {/* Input area */}
+        {/* Input area — always at bottom */}
         <div className="border-t border-slate-200 bg-white px-4 py-4">
           <div className="flex gap-3 max-w-4xl mx-auto">
             <textarea
